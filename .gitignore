@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Model weights and large binaries
+state_dict/
+*.pkl
+*.bin
+
+# GloVe embeddings
+glove/
+
+# Logs (optional — keep if you want results in repo)
+# *.txt
