@@ -224,55 +224,44 @@ All datasets are included as `.raw` files and committed to the repository. The `
 ---
 
 ## Results
-
-All results are averaged over **3 random seeds** (42, 123, 776). ± values denote standard deviation across seeds. Best results per column in **bold**.
-
-### Accuracy (%)
-
-| Model | Rest14 | Lap14 | Rest15 | Rest16 |
-|---|---|---|---|---|
-| ASGCN (paper) | 80.86 | 75.55 | 79.89 | 88.99 |
-| A — Baseline (ours) | 81.43 ±0.19 | 75.97 ±0.87 | 79.62 ±0.13 | 88.19 ±0.32 |
-| **B — Baseline + BERT** | **85.98 ±0.29** | **80.02 ±0.19** | **84.77 ±0.53** | **92.14 ±0.08** |
-| C — Baseline + GAT | 80.80 ±0.25 | 74.96 ±1.05 | 79.83 ±0.39 | 88.49 ±0.34 |
-| D — Baseline + SoftMask | 81.49 ±0.47 | 75.74 ±0.40 | 79.48 ±0.35 | 88.29 ±0.38 |
-| E — Baseline + Contrastive | 81.16 ±0.30 | 75.98 ±0.20 | 79.60 ±0.20 | 88.29 ±0.23 |
-
-### Macro-F1 (%)
-
-| Model | Rest14 | Lap14 | Rest15 | Rest16 |
-|---|---|---|---|---|
-| ASGCN (paper) | 72.19 | 71.05 | 61.89 | 67.48 |
-| A — Baseline (ours) | 73.05 ±0.40 | 71.99 ±1.26 | 62.76 ±0.65 | 69.44 ±0.19 |
-| **B — Baseline + BERT** | **79.80 ±0.29** | **76.48 ±0.33** | **71.46 ±1.90** | **79.04 ±1.57** |
-| C — Baseline + GAT | 71.69 ±0.59 | 70.87 ±1.33 | 62.22 ±0.71 | 68.60 ±1.47 |
-| D — Baseline + SoftMask | 73.03 ±0.24 | 71.67 ±0.67 | 61.16 ±0.17 | 70.61 ±0.85 |
-| E — Baseline + Contrastive | 72.66 ±0.74 | 71.93 ±0.39 | 62.46 ±0.61 | 68.09 ±1.10 |
-
-### Δ vs Paper Baseline (accuracy, percentage points)
-
-| Model | Rest14 | Lap14 | Rest15 | Rest16 |
-|---|---|---|---|---|
-| A — Baseline (ours) | +0.57 | +0.42 | −0.27 | −0.80 |
-| **B — Baseline + BERT** | **+5.12** | **+4.47** | **+4.88** | **+3.15** |
-| C — Baseline + GAT | −0.06 | −0.59 | −0.06 | −0.50 |
-| D — Baseline + SoftMask | +0.63 | +0.19 | −0.41 | −0.70 |
-| E — Baseline + Contrastive | +0.30 | +0.43 | −0.29 | −0.70 |
-
+ 
+All results are reported as mean ± standard deviation over **3 random seeds** (42, 123, 776). Best results per column in **bold**.
+ 
+### Accuracy and Macro-F1 (%)
+ 
+| Model | Rest14 Acc | Rest14 F1 | Lap14 Acc | Lap14 F1 | Rest15 Acc | Rest15 F1 | Rest16 Acc | Rest16 F1 |
+|---|---|---|---|---|---|---|---|---|
+| Paper (ASGCN) | 80.77 | 72.02 | 75.55 | 71.05 | 79.89 | 61.89 | 88.99 | 67.48 |
+| Baseline (Reimpl.) | 81.43 ±0.19 | 73.05 ±0.40 | 75.97 ±0.87 | 71.99 ±1.26 | 79.62 ±0.13 | 62.76 ±0.65 | 88.19 ±0.32 | 69.44 ±0.19 |
+| **Baseline + BERT** | **85.98 ±0.29** | **79.80 ±0.29** | **80.02 ±0.19** | **76.48 ±0.33** | **84.77 ±0.53** | **71.46 ±1.90** | **92.14 ±0.08** | **79.04 ±1.57** |
+| Baseline + GAT | 80.80 ±0.25 | 71.69 ±0.59 | 74.96 ±1.05 | 70.87 ±1.33 | 79.83 ±0.39 | 62.22 ±0.71 | 88.49 ±0.34 | 68.60 ±1.47 |
+| Baseline + SoftMask | 81.49 ±0.47 | 73.03 ±0.24 | 75.74 ±0.40 | 71.67 ±0.67 | 79.48 ±0.35 | 61.16 ±0.17 | 88.29 ±0.38 | 70.61 ±0.85 |
+| Baseline + Contrastive | 81.16 ±0.30 | 72.66 ±0.74 | 75.98 ±0.20 | 71.93 ±0.39 | 79.60 ±0.20 | 62.46 ±0.61 | 88.29 ±0.23 | 68.09 ±1.10 |
+ 
+### Δ vs Paper Baseline (percentage points)
+ 
+| Model | Rest14 ΔAcc | Rest14 ΔF1 | Lap14 ΔAcc | Lap14 ΔF1 | Rest15 ΔAcc | Rest15 ΔF1 | Rest16 ΔAcc | Rest16 ΔF1 |
+|---|---|---|---|---|---|---|---|---|
+| Baseline (Reimpl.) | +0.57 | +0.86 | +0.42 | +0.94 | −0.27 | +0.87 | −0.80 | +1.96 |
+| **Baseline + BERT** | **+5.12** | **+7.61** | **+4.47** | **+5.43** | **+4.88** | **+9.57** | **+3.15** | **+11.56** |
+| Baseline + GAT | −0.06 | −0.50 | −0.59 | −0.18 | −0.06 | +0.33 | −0.50 | +1.12 |
+| Baseline + SoftMask | +0.63 | +0.84 | +0.19 | +0.62 | −0.41 | −0.73 | −0.70 | +3.13 |
+| Baseline + Contrastive | +0.30 | +0.47 | +0.43 | +0.88 | −0.29 | +0.57 | −0.70 | +0.61 |
+ 
 ### Key Findings
-
+ 
 **B — Baseline + BERT** is the dominant improvement, yielding +3.15 to +5.12pp accuracy and +4.49 to +9.60pp F1 across all datasets. Replacing static GloVe embeddings with contextual BERT representations substantially improves the model's handling of polysemous words and the minority neutral class.
-
+ 
 **C — Baseline + GAT** marginally underperforms the baseline on most datasets. Single-head attention without edge-type awareness provides no reliable advantage over GCN on clean dependency trees, consistent with published findings.
-
+ 
 **D — Baseline + SoftMask** shows small gains on rest14 and lap14 but regresses on rest15, the smallest dataset. The learnable edge gates require sufficient training data to learn meaningful adjacency weights.
-
+ 
 **E — Baseline + Contrastive** produces the most stable results across seeds (lowest variance), suggesting the contrastive objective acts as a regulariser rather than fundamentally reshaping the representation space.
-
+ 
 ---
-
+ 
 ## Base Paper
-
+ 
 ```bibtex
 @inproceedings{zhang2019aspect,
     title     = {Aspect-based Sentiment Classification with Aspect-specific Graph Convolutional Networks},
@@ -283,7 +272,7 @@ All results are averaged over **3 random seeds** (42, 123, 776). ± values denot
     url       = {https://aclanthology.org/D19-1464/}
 }
 ```
-
+ 
 ## Acknowledgements
-
+ 
 Base codebase adapted from [GeneZC/ASGCN](https://github.com/GeneZC/ASGCN).
