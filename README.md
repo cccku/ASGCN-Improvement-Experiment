@@ -29,8 +29,8 @@ We reproduce the original ASGCN baseline and implement four independent improvem
 
 | Sentence | Aspect | Sentiment |
 |---|---|---|
-| "The food was great but the service was awful." | food | Positive ✅ |
-| "The food was great but the service was awful." | service | Negative ✅ |
+| "The food was great but the service was awful." | food | Positive |
+| "The food was great but the service was awful." | service | Negative |
 
 ---
 
