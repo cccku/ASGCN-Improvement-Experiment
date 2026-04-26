@@ -9,7 +9,7 @@ Built on top of [Zhang et al., EMNLP 2019](https://aclanthology.org/D19-1464/)
 
 | Member | Student ID | Contribution |
 |---|---|---|
-| Chang Yuan-lun | G2510220J | Project coordination and proposal; Baseline + Contrastive Loss implementation; literature review and analysis writing; evaluation code and result analysis; codebase management; presentation |
+| Chang Yuan-Lun | G2510220J | Project coordination and proposal; Baseline + Contrastive Loss implementation; literature review and analysis writing; evaluation code and result analysis; codebase management; presentation |
 | Chua Xin Xue | G2510813C | Environment setup and baseline reimplementation; codebase integration and repository management; literature writing; ; powerpoint design and slide finalization; presentation |
 | Pang Zishuo | G2503640G | Baseline + Soft Masking implementation; soft adjacency gate design and ablation; literature writing; report editing |
 | Chen Ziting | G2510777K | Baseline + BERT implementation; BERT tokenisation pipeline and differential learning rate setup; PowerPoint design and slide drafting |
