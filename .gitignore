@@ -8,8 +8,12 @@ state_dict/
 *.pkl
 *.bin
 
-# GloVe embeddings
+# GloVe embeddings (too large to commit — see setup.sh)
 glove/
 
-# Logs (optional — keep if you want results in repo)
-# *.txt
+# Pre-computed dependency graphs and trees (regenerate via setup.sh)
+datasets/**/*.graph
+datasets/**/*.tree
+
+# Training logs generated at runtime
+log/

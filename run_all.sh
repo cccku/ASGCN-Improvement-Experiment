@@ -1,20 +1,13 @@
 #!/bin/bash
 # =============================================================================
-# run_all.sh — Run ALL ASGCN improvement experiments
+# run_all.sh — Run ASGCN improvement experiments
 # =============================================================================
 # Usage:
-#   bash run_all.sh              # run everything (A B C D E)
-#   bash run_all.sh C            # run only improvement C
-#   bash run_all.sh C D E        # run C, D and E
-#
-# Experimental design (for fair comparison):
-#   - Fixed seeds : 42, 123, 776  (same for ALL improvements and datasets)
-#   - 1 run per seed (repeats=1 inside train.py)
-#   - Results for each seed are logged separately
-#   - summarize_results.py aggregates mean ± std across seeds
+#   bash run_all.sh              # run all (A B C D E)
+#   bash run_all.sh C            # run only C
+#   bash run_all.sh C D E        # run multiple
 # =============================================================================
 
-# No set -e — handle errors per-experiment
 SEEDS=(42 123 776)
 DATASETS=(rest14 lap14 rest15 rest16)
 DEVICE="cuda"
@@ -23,16 +16,17 @@ BATCH_SIZE=32
 LOG_STEP=5
 SUMMARY_DIR="results"
 
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export PYTHONPATH="${PROJECT_ROOT}:${PYTHONPATH}"
+
 mkdir -p "${SUMMARY_DIR}"
 FAILED_RUNS=()
 
 # --------------------------------------------------------------------------
-# Helper: run ONE seed of one experiment
-# --------------------------------------------------------------------------
 run_experiment() {
-    local LABEL=$1      # e.g. "C_gat"
-    local WORKDIR=$2    # e.g. "improvement_C_gat"
-    local MODEL=$3      # e.g. "asgcn_gat"
+    local LABEL=$1
+    local WORKDIR=$2
+    local MODEL=$3
     local DATASET=$4
     local SEED=$5
     local EXTRA_ARGS=${6:-""}
@@ -45,7 +39,6 @@ run_experiment() {
     echo "  [${LABEL}] dataset=${DATASET}  seed=${SEED}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-    # Self-contained header in every log file
     cat > "${LOG_FILE}" << HEADER
 ================================================
   Improvement : ${LABEL}
@@ -59,7 +52,7 @@ run_experiment() {
 ================================================
 HEADER
 
-    pushd "${WORKDIR}" > /dev/null
+    pushd "${PROJECT_ROOT}/${WORKDIR}" > /dev/null
 
     python train.py \
         --model_name    "${MODEL}" \
@@ -70,29 +63,22 @@ HEADER
         --batch_size    "${BATCH_SIZE}" \
         --log_step      "${LOG_STEP}" \
         ${EXTRA_ARGS} \
-        2>&1 | tee -a "../${LOG_FILE}"
+        2>&1 | tee -a "${PROJECT_ROOT}/${LOG_FILE}"
     local EXIT_CODE=${PIPESTATUS[0]}
 
     popd > /dev/null
 
     if [ ${EXIT_CODE} -ne 0 ]; then
         echo "  ✗ FAILED (exit ${EXIT_CODE}) → ${LOG_FILE}"
-        echo "RESULT: FAILED (exit ${EXIT_CODE})" >> "${LOG_FILE}"
         FAILED_RUNS+=("${LABEL}/${DATASET}/seed${SEED}")
     else
-        # Extract final metrics from this run
         local ACC=$(grep "max_test_acc_avg" "${LOG_FILE}" | tail -1 | grep -oP '[0-9]+\.[0-9]+' | head -1)
-        local F1=$( grep "max_test_f1_avg"  "${LOG_FILE}" | tail -1 | grep -oP '[0-9]+\.[0-9]+' | head -1)
-        echo "  ✓ Done  |  acc=${ACC}  f1=${F1}  seed=${SEED}"
-        {
-            echo "------------------------------------------------"
-            echo "RESULT: seed=${SEED}  acc=${ACC}  f1=${F1}"
-        } >> "${LOG_FILE}"
+        local F1=$(grep  "max_test_f1_avg"  "${LOG_FILE}" | tail -1 | grep -oP '[0-9]+\.[0-9]+' | head -1)
+        echo "  ✓ Done  |  acc=${ACC}  f1=${F1}"
+        echo "RESULT: seed=${SEED}  acc=${ACC}  f1=${F1}" >> "${LOG_FILE}"
     fi
 }
 
-# --------------------------------------------------------------------------
-# Which improvements to run
 # --------------------------------------------------------------------------
 if [ $# -eq 0 ]; then
     RUN_LIST=(A B C D E)
@@ -105,96 +91,72 @@ echo "  ASGCN Experiment Runner"
 echo "  Improvements : ${RUN_LIST[*]}"
 echo "  Datasets     : ${DATASETS[*]}"
 echo "  Seeds        : ${SEEDS[*]}"
-echo "  Device       : ${DEVICE}"
-echo "  Note         : 1 run per seed, seeds fixed across all improvements"
+echo "  PYTHONPATH   : ${PYTHONPATH}"
 echo "============================================================"
 START_TIME=$(date +%s)
 
-# --------------------------------------------------------------------------
-# A — Baseline ASGCN
-# --------------------------------------------------------------------------
+# A — Baseline Reimplementation
 if [[ " ${RUN_LIST[*]} " == *" A "* ]]; then
-    echo ""; echo "▶▶▶  IMPROVEMENT A — Baseline ASGCN"
+    echo ""; echo "▶▶▶  A — Baseline Reimplementation"
     for DS in "${DATASETS[@]}"; do
         for SEED in "${SEEDS[@]}"; do
-            run_experiment "A_baseline" "ASGCN_base" "asgcn" "${DS}" "${SEED}"
+            run_experiment "A_baseline" "Baseline_Reimplementation" "asgcn" "${DS}" "${SEED}"
         done
     done
 fi
 
-# --------------------------------------------------------------------------
-# B — BERT-enhanced ASGCN
-# --------------------------------------------------------------------------
+# B — Baseline + BERT
 if [[ " ${RUN_LIST[*]} " == *" B "* ]]; then
-    echo ""; echo "▶▶▶  IMPROVEMENT B — BERT-enhanced ASGCN"
+    echo ""; echo "▶▶▶  B — Baseline + BERT"
     for DS in "${DATASETS[@]}"; do
         for SEED in "${SEEDS[@]}"; do
-            run_experiment "B_bert" "improvement_B_bert" "asgcn_bert" "${DS}" "${SEED}" \
+            run_experiment "B_bert" "Baseline_BERT" "asgcn_bert" "${DS}" "${SEED}" \
                 "--bert_lr 2e-5 --num_epoch 20 --batch_size 16"
         done
     done
 fi
 
-# --------------------------------------------------------------------------
-# C — GAT
-# --------------------------------------------------------------------------
+# C — Baseline + GAT
 if [[ " ${RUN_LIST[*]} " == *" C "* ]]; then
-    echo ""; echo "▶▶▶  IMPROVEMENT C — Graph Attention Network"
+    echo ""; echo "▶▶▶  C — Baseline + GAT"
     for DS in "${DATASETS[@]}"; do
         for SEED in "${SEEDS[@]}"; do
-            run_experiment "C_gat" "improvement_C_gat" "asgcn_gat" "${DS}" "${SEED}"
+            run_experiment "C_gat" "Baseline_GAT" "asgcn_gat" "${DS}" "${SEED}"
         done
     done
 fi
 
-# --------------------------------------------------------------------------
-# D — Soft Mask
-# --------------------------------------------------------------------------
+# D — Baseline + SoftMask
 if [[ " ${RUN_LIST[*]} " == *" D "* ]]; then
-    echo ""; echo "▶▶▶  IMPROVEMENT D — Learnable Soft Graph Masking"
+    echo ""; echo "▶▶▶  D — Baseline + SoftMask"
     for DS in "${DATASETS[@]}"; do
         for SEED in "${SEEDS[@]}"; do
-            run_experiment "D_softmask" "improvement_D_softmask" "asgcn_softmask" "${DS}" "${SEED}"
+            run_experiment "D_softmask" "Baseline_SoftMask" "asgcn_softmask" "${DS}" "${SEED}"
         done
     done
 fi
 
-# --------------------------------------------------------------------------
-# E — Contrastive
-# --------------------------------------------------------------------------
+# E — Baseline + Contrastive
 if [[ " ${RUN_LIST[*]} " == *" E "* ]]; then
-    echo ""; echo "▶▶▶  IMPROVEMENT E — Supervised Contrastive Learning"
+    echo ""; echo "▶▶▶  E — Baseline + Contrastive"
     for DS in "${DATASETS[@]}"; do
         for SEED in "${SEEDS[@]}"; do
-            run_experiment "E_contrastive" "improvement_E_contrastive" \
-                "asgcn_contrastive" "${DS}" "${SEED}" \
-                "--contrastive_lambda 0.1"
+            run_experiment "E_contrastive" "Baseline_Contrastive" "asgcn_contrastive" "${DS}" "${SEED}"
         done
     done
 fi
 
-# --------------------------------------------------------------------------
-# Final summary
 # --------------------------------------------------------------------------
 END_TIME=$(date +%s)
 ELAPSED=$(( END_TIME - START_TIME ))
-HOURS=$(( ELAPSED / 3600 ))
-MINS=$(( (ELAPSED % 3600) / 60 ))
-
 echo ""
 echo "============================================================"
-echo "  All requested experiments finished!"
-echo "  Total time: ${HOURS}h ${MINS}m"
+echo "  Finished in $(( ELAPSED/3600 ))h $(( (ELAPSED%3600)/60 ))m"
 echo "  Results in: ${SUMMARY_DIR}/"
 if [ ${#FAILED_RUNS[@]} -gt 0 ]; then
-    echo ""
-    echo "  ✗ FAILED RUNS (${#FAILED_RUNS[@]}):"
-    for r in "${FAILED_RUNS[@]}"; do
-        echo "      - ${r}"
-    done
+    echo "  ✗ FAILED (${#FAILED_RUNS[@]}):"; for r in "${FAILED_RUNS[@]}"; do echo "      - ${r}"; done
 else
     echo "  ✓ All runs completed successfully"
 fi
-echo ""
-echo "  Run: python summarize_results.py  to see the full table"
+echo "  Run: python summarize_results.py  to generate result tables"
 echo "============================================================"
